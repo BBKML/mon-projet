@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Documents</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #5e9df0;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #589dec;
+            padding-bottom: 10px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="file"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group button {
+            background-color: #5b97cf;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #71bbf8;
+        }
+        .document-list,
+        .folder-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .document-list li,
+        .folder-list li {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .document-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .document-list .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .document-list .actions button,
+        .document-list .actions a {
+            background-color: #1e2cf1;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .document-list .actions button:hover,
+        .document-list .actions a:hover {
+            background-color: #2f3cf3;
+        }
+        .update-form {
+            margin-top: 20px;
+        }
+        .update-form h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .update-form form {
+            margin: 0;
+        }
+        .update-form input[type="hidden"] {
+            display: none;
+        }
+        .nav-item .nav-link {
+            background-color: #48a1f5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-item .nav-link:hover {
+            background-color: #3399ff;
+            transform: scale(1.05);
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+    <script>
+        function toggleFolder(folderId) {
+            var folderContents = document.getElementById('folder-contents-' + folderId);
+            if (folderContents.style.display === 'none') {
+                folderContents.style.display = 'block';
+            } else {
+                folderContents.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var folderItems = document.querySelectorAll('.folder-list li');
+            folderItems.forEach(function (item) {
+                item.addEventListener('click', function () {
+                    var folderId = this.getAttribute('data-folder-id');
+                    toggleFolder(folderId);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{% url 'redirection_vue' %}" class="nav-link">Retour vers page Accueil</a>
+                </li>
+            </ul>
+        </div>
+        <h1>Mise a jour des documents</h1>
+
+        <!-- Formulaire de création de dossier -->
+        <h2>Créer un Dossier</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ folder_form.as_p }}
+            <div class="form-group">
+                <button type="submit" name="create_folder">Créer Dossier</button>
+            </div>
+        </form>
+
+        <!-- Liste des dossiers et documents -->
+        <h2>Dossiers et Documents</h2>
+        <ul class="folder-list">
+            {% for folder in folders %}
+                <li data-folder-id="{{ folder.pk }}">
+                    {{ folder.name }}
+                    <div class="actions">
+                        <!-- Delete button for the folder -->
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier ?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="folder_id" value="{{ folder.pk }}">
+                            <button type="submit" name="delete_folder">Supprimer</button>
+                        </form>
+                    </div>
+                    <ul id="folder-contents-{{ folder.pk }}" class="document-list" style="display:none;">
+                        {% for document in folder.documents.all %}
+                            <li>
+                                {{ document.title }}
+                                <div class="actions">
+                                    <a href="#" onclick="document.getElementById('update-form-{{ document.pk }}').style.display='block'">Modifier</a>
+                                    <form method="post" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="doc_id" value="{{ document.pk }}">
+                                        <button type="submit" name="delete_document">Supprimer</button>
+                                    </form>
+                                </div>
+                                <!-- Formulaire de mise à jour de document -->
+                                <div id="update-form-{{ document.pk }}" class="update-form" style="display:none;">
+                                    <h3>Modifier le Document</h3>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        {{ update_form.as_p }}
+                                        <input type="hidden" name="doc_id" value="{{ document.pk }}">
+                                        <div class="form-group">
+                                            <button type="submit" name="update_document">Mettre à Jour</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li>Aucun document trouvé.</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% empty %}
+                <li>Aucun dossier trouvé.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Liste des documents hors dossier -->
+        <h2>Documents hors dossier</h2>
+        <ul class="document-list">
+            {% for document in documents %}
+                {% if document.folder == None %}
+                    <li>
+                        {{ document.title }}
+                        <div class="actions">
+                            <a href="#" onclick="document.getElementById('update-form-{{ document.pk }}').style.display='block'">Modifier</a>
+                            <form method="post" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="doc_id" value="{{ document.pk }}">
+                                <button type="submit" name="delete_document">Supprimer</button>
+                            </form>
+                        </div>
+                        <!-- Formulaire de mise à jour de document -->
+                        <div id="update-form-{{ document.pk }}" class="update-form" style="display:none;">
+                            <h3>Modifier le Document</h3>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ update_form.as_p }}
+                                <input type="hidden" name="doc_id" value="{{ document.pk }}">
+                                <div class="form-group">
+                                    <button type="submit" name="update_document">Mettre à Jour</button>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                {% endif %}
+            {% empty %}
+                <li>Aucun document trouvé.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

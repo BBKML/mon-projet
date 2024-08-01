@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+        }
+        .file-list, .doc-list, .pdf-viewer {
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .file-list {
+            width: 20%;
+            border-right: 1px solid #ddd;
+        }
+        .doc-list {
+            width: 40%;
+            border-right: 1px solid #ddd;
+        }
+        .pdf-viewer {
+            width: 40%;
+        }
+        .context-menu {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: #f1f1f1;
+        }
+        .hover-highlight:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="file-list">
+        <button class="btn btn-primary mb-2" onclick="createFolder(folderStructure)">Create Folder</button>
+        <ul id="folders" class="list-group">
+            <!-- Folders will be listed here -->
+        </ul>
+    </div>
+    <div class="doc-list">
+        <div class="d-flex justify-content-between mb-2">
+            <input type="file" id="fileInput" class="form-control w-50" onchange="uploadDocument()">
+            <select id="sortOptions" class="form-select w-50" onchange="sortDocuments()">
+                <option value="title">Sort by Title</option>
+                <option value="date">Sort by Date</option>
+            </select>
+        </div>
+        <ul id="documents" class="list-group">
+            <!-- Documents will be listed here -->
+        </ul>
+    </div>
+    <div class="pdf-viewer">
+        <iframe id="pdfViewer" src="" width="100%" height="100%"></iframe>
+    </div>
+
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" onclick="createSubFolder()">Create Subfolder</div>
+        <div class="context-menu-item" onclick="deleteItem()">Delete</div>
+    </div>
+
+    <script>
+        const folders = document.getElementById('folders');
+        const documents = document.getElementById('documents');
+        const pdfViewer = document.getElementById('pdfViewer');
+        const contextMenu = document.getElementById('contextMenu');
+        let currentFolder = '';
+        let currentElement = null;
+        let currentElementType = ''; // To differentiate between folder and document
+
+        const folderStructure = JSON.parse(localStorage.getItem('folderStructure')) || {};
+
+        function saveFolderStructure() {
+            localStorage.setItem('folderStructure', JSON.stringify(folderStructure));
+        }
+
+        function renderFolders(structure = folderStructure, parentElement = folders) {
+            parentElement.innerHTML = '';
+            for (const folder in structure) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item hover-highlight';
+                li.textContent = folder;
+                li.oncontextmenu = (event) => showContextMenu(event, structure[folder], li, 'folder');
+                li.onclick = () => {
+                    currentFolder = getFolderPath(folder, parentElement);
+                    loadDocuments(currentFolder);
+                };
+                const subFolderUl = document.createElement('ul');
+                li.appendChild(subFolderUl);
+                parentElement.appendChild(li);
+                renderFolders(structure[folder], subFolderUl);
+            }
+        }
+
+        function createFolder(parentStructure) {
+            const folderName = prompt('Enter folder name:');
+            if (folderName) {
+                parentStructure[folderName] = {};
+                saveFolderStructure();
+                renderFolders();
+            }
+        }
+
+        function createSubFolder() {
+            if (currentElement && currentElementType === 'folder') {
+                const parentStructure = getFolderStructure(currentElement);
+                createFolder(parentStructure);
+            }
+        }
+
+        function deleteItem() {
+            if (currentElement) {
+                if (currentElementType === 'folder') {
+                    const parentStructure = getParentStructure(currentElement);
+                    const itemName = currentElement.firstChild.textContent;
+                    delete parentStructure[itemName];
+                } else if (currentElementType === 'document') {
+                    const docName = currentElement.textContent;
+                    let docNames = JSON.parse(localStorage.getItem(currentFolder)) || [];
+                    docNames = docNames.filter(doc => doc.name !== docName);
+                    localStorage.setItem(currentFolder, JSON.stringify(docNames));
+                }
+                saveFolderStructure();
+                renderFolders();
+                loadDocuments(currentFolder);
+                currentElement = null;
+            }
+        }
+
+        function getFolderPath(folder, parentElement) {
+            let path = folder;
+            let currentElement = parentElement;
+            while (currentElement !== folders) {
+                const parentLi = currentElement.parentElement;
+                const parentFolder = parentLi.firstChild.textContent;
+                path = `${parentFolder}/${path}`;
+                currentElement = parentLi.parentElement;
+            }
+            return path;
+        }
+
+        function loadDocuments(folderPath) {
+            documents.innerHTML = ''; // Clear current list
+            const docNames = JSON.parse(localStorage.getItem(folderPath)) || [];
+            docNames.forEach(doc => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item hover-highlight';
+                li.textContent = doc.name;
+                li.oncontextmenu = (event) => showContextMenu(event, doc, li, 'document');
+                li.onclick = () => viewDocument(folderPath, doc.name); // Pass folderPath to viewDocument
+                documents.appendChild(li);
+            });
+        }
+
+        function uploadDocument() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (file && currentFolder) {
+                let docNames = JSON.parse(localStorage.getItem(currentFolder)) || [];
+                docNames.push({name: file.name, date: new Date().toISOString()});
+                localStorage.setItem(currentFolder, JSON.stringify(docNames));
+                
+                const li = document.createElement('li');
+                li.className = 'list-group-item hover-highlight';
+                li.textContent = file.name;
+                li.oncontextmenu = (event) => showContextMenu(event, file.name, li, 'document');
+                li.onclick = () => viewDocument(currentFolder, file.name); // Pass currentFolder to viewDocument
+                documents.appendChild(li);
+                
+                fileInput.value = ''; // Clear the file input
+            }
+        }
+
+        function viewDocument(folderPath, docName) {
+            const documentUrl = `C:/Users/HP/GED/media/documents/${folderPath}/${docName}`;
+            console.log(`Loading document from URL: ${documentUrl}`); // Debugging line
+            pdfViewer.src = documentUrl;
+        }
+
+        function sortDocuments() {
+            const sortOption = document.getElementById('sortOptions').value;
+            const docNames = JSON.parse(localStorage.getItem(currentFolder)) || [];
+            docNames.sort((a, b) => {
+                if (sortOption === 'title') {
+                    return a.name.localeCompare(b.name);
+                } else if (sortOption === 'date') {
+                    return new Date(a.date) - new Date(b.date);
+                }
+            });
+            localStorage.setItem(currentFolder, JSON.stringify(docNames));
+            loadDocuments(currentFolder);
+        }
+
+        function showContextMenu(event, item, element, type) {
+            event.preventDefault();
+            currentElement = element;
+            currentElementType = type;
+            const x = event.clientX;
+            const y = event.clientY;
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.style.display = 'block';
+            document.addEventListener('click', hideContextMenu);
+        }
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+            document.removeEventListener('click', hideContextMenu);
+        }
+
+        function getFolderStructure(element) {
+            let structure = folderStructure;
+            const path = [];
+            while (element !== folders) {
+                path.unshift(element.firstChild.textContent);
+                element = element.parentElement.parentElement;
+            }
+            for (const part of path) {
+                structure = structure[part];
+            }
+            return structure;
+        }
+
+        function getParentStructure(element) {
+            let structure = folderStructure;
+            const path = [];
+            element = element.parentElement.parentElement; // Move up to the parent UL
+            while (element !== folders) {
+                path.unshift(element.firstChild.textContent);
+                element = element.parentElement.parentElement;
+            }
+            for (const part of path) {
+                structure = structure[part];
+            }
+            return structure;
+        }
+
+        renderFolders();
+    </script>
+</body>
+</html>

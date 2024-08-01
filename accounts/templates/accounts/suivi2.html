@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page d'Accueil</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8; /* Couleur de fond générale */
+            background-image: url('{% static "images/images.jpeg" %}'); /* Image d'arrière-plan */
+            background-size: cover; /* Couvrir l'ensemble de la page */
+            background-repeat: no-repeat;
+        }
+
+        .sidebar {
+            width: 400px;
+            background-color: #3b76b1; 
+            color: #fff;
+            height: 200vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+        }
+
+        .sidebar .nav-link {
+            color: #ddd;
+            padding: 12px 15px;
+            transition: background-color 0.3s, color 0.3s;
+            text-decoration: none;
+            font-size: 20px;
+            border-radius: 5px;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #8bb7d4;
+            color: #a3c0e6;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .nav-item {
+            margin-bottom: 50px; /* Ajouter de l'espace entre les éléments */
+        }
+        .content {
+            margin-left: 250px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .content-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .content-header h1 {
+            margin: 10;
+            color: #007bff;
+            text-align:center;
+        }
+
+        .document-count {
+            width: 400px;
+            background-color: #007bff; 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+            border-radius: 6px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-left: auto;  
+            margin-right: 0;  
+        }
+
+        .document-count h2 {
+            margin: 0; 
+            font-size: 25px; 
+        }
+
+        .document-count .count {
+            font-size: 48px; 
+            margin-top: 10px; 
+        }
+        .button-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .dashboard-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <a href="{% url 'superuser_dashboard' %}" class="dashboard-button">Dashboard Administrateur</a>
+    </div>
+
+    <div class="sidebar">
+        
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="{% url 'suivi2' %}" class="nav-link active">Accueil</a></li>
+            <li class="nav-item"><a href="{% url 'enregistrerDoc' %}" class="nav-link">Enregistrer un Document</a></li>
+            <li class="nav-item"><a href="{% url 'view_documents' %}" class="nav-link">Liste des documents</a></li>
+            <li class="nav-item"><a href="{% url 'rechercherDoc' %}" class="nav-link">Rechercher des document</a></li>
+            <li class="nav-item"><a href="{% url 'rapport' %}" class="nav-link">Générer des rapports</a></li>
+            <li class="nav-item"><a href="{% url 'manage_documents' %}" class="nav-link">Mettre a jour un document</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        <div class="content-header">
+            <h1>Suivi des Documents</h1>
+        </div>
+        <div class="document-count">
+            <h2>Total Documents</h2>
+            <p id="document-count-number" class="count">0</p>
+        </div>
+        <div class="document-count">
+            <h2>Documents Archivés</h2>
+            <p id="archived-document-count" class="count">0</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+       $(document).ready(function() {
+            // Charger le nombre de documents initialement
+            $.get("{% url 'get_document_count' %}", function(data) {
+                $('#document-count-number').text(data.count);
+            });
+
+    // Charger le nombre de documents archivés initialement
+    $.get("{% url 'get_archived_document_count' %}", function(data) {
+        $('#archived-document-count').text(data.count);
+    });
+
+    $('#uploadForm').on('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Incrémenter le nombre de documents après un téléchargement réussi
+                        $.get("{% url 'get_document_count' %}", function(data) {
+                            $('#document-count-number').text(data.count);
+                        });
+                        alert('Document uploaded successfully');
+                    },
+                    error: function(response) {
+                        alert('Error uploading document');
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

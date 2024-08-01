@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuManage</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #b2b5b8, #b4b6b8);
+            font-family: 'Arial', sans-serif;
+            color: #0b0b0c;
+        }
+        .navbar {
+            background-color: #064a8d;
+        }
+        .navbar-brand, .nav-link {
+            color: #dad7d7 !important;
+        }
+        .navbar-brand:hover, .nav-link:hover {
+            color: #cfd8dc !important;
+        }
+        .hero-section {
+            background: url('https://print-value.fr/wp-content/uploads/2018/09/la-GED-3-minutes-pour-comprendre.jpg') no-repeat center center;
+            background-size: cover;
+            color: #ffffff;
+            padding: 100px 0;
+            text-align: center;
+        }
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+        }
+        .hero-section p {
+            font-size: 1.25rem;
+            margin-top: 20px;
+        }
+        .btn-custom {
+            background-color: #0a335f;
+            color: #efeef3;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.25rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+            text-decoration: none;
+        }
+        .container {
+            text-align: center;
+            padding: 50px 15px;
+        }
+        .features {
+            background-color: #5899ce;
+            padding: 60px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .features h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+        .feature-box {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .feature-box h3 {
+            font-size: 1.75rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">DocuManage</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Sign Up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container">
+            <h1>Bienvenue sur DocuManage</h1>
+            
+            <a href="{% url 'login' %}" class="btn btn-custom">Commencer Maintenant</a>
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="container">
+            <h2>Nos Fonctionnalités</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <h3>Gestion Documentaire</h3>
+                        <p>Organisez vos documents avec des fonctionnalités puissantes et intuitives.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <h3>Archivage des documents</h3>
+                        <p>Les documents sont archivés de manière sécurisée et organisée pour assurer leur intégrité et leur accessibilité future</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <h3>Sécurité Avancée</h3>
+                        <p>Assurez la sécurité et la confidentialité de vos documents avec nos protocoles robustes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
