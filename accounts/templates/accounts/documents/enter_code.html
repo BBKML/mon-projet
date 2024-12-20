@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Entrer le code</title>
+</head>
+<body>
+    <h2>Accès au document : {{ transfert.title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Valider</button>
+    </form>
+</body>
+</html>

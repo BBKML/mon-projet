@@ -1,0 +1,22 @@
+<ul class="file-list">
+    {% for folder in folders %}
+    <li>
+        <i class="fas fa-folder" style="color: #fbc02d;"></i> {{ folder.name }}
+    </li>
+    {% endfor %}
+
+    {% for document in documents %}
+    <li>
+        {% if document.file.name.endswith:".pdf" %}
+            <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+        {% elif document.file.name.endswith:".docx" %}
+            <i class="fas fa-file-word" style="color: #3498db;"></i>
+        {% elif document.file.name.endswith:".xlsx" %}
+            <i class="fas fa-file-excel" style="color: #2ecc71;"></i>
+        {% else %}
+            <i class="fas fa-file" style="color: #95a5a6;"></i>
+        {% endif %}
+        {{ document.title }}
+    </li>
+    {% endfor %}
+</ul>

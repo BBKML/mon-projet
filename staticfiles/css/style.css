@@ -1,0 +1,138 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7d9; /* Couleur de fond vert clair */
+}
+
+/* Navbar */
+.navbar {
+    background-color: #28a745; /* Couleur de fond de la barre de navigation vert foncé */
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+}
+
+.navbar-nav .nav-link:hover {
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #212529; /* Couleur sombre pour la barre latérale */
+}
+
+.sidebar .nav-item .nav-link {
+}
+
+.sidebar .nav-item .nav-link:hover {
+    background-color: #28a745; /* Fond vert foncé au survol */
+}
+
+.sidebar .nav-item.active .nav-link {
+    background-color: #28a745; /* Fond vert foncé pour l'élément actif */
+}
+
+/* Main Content */
+.container {
+    background-color: #ffffff; /* Fond blanc pour le contenu principal */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Table Styles */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: #ffffff;
+}
+
+.table th {
+    background-color: #28a745; /* En-tête de table en vert foncé */
+    text-align: left;
+    padding: 10px;
+}
+
+.table td {
+    padding: 10px;
+    border-bottom: 1px solid #d4edda; /* Bordure vert clair */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #d4edda; /* Fond vert clair au survol */
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-primary:hover {
+    background-color: #218838; /* Vert foncé au survol */
+    border-color: #218838;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Gris foncé au survol */
+    border-color: #5a6268;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #212529;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    border-top: 1px solid #343a40;
+}
+
+/* Custom Admin Elements */
+.nav-tabs {
+    border-bottom: 2px solid #28a745;
+}
+
+.nav-tabs .nav-link {
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #28a745;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #28a745;
+    font-weight: bold;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="email"],
+select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
